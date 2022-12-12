@@ -23,55 +23,77 @@ const puppeteer = require("puppeteer");
     "https://www.indeed.com/jobs?q=Architect&l=San%20Francisco%2C%20CA&from=searchOnHP"
   );
 
-  await page.waitForSelector(".jobsearch-ResultsList li");
+  let more = await page.$('[aria-label="Next Page"]');
 
   const results = [];
   // Search Result Page
-  // Get List
-  const elements = await page.$$(".jobsearch-ResultsList li");
-  // For each element
-  for (e of elements) {
-    const titleElement = await e.$(".jcs-JobTitle");
 
-    // not all elements are valid
-    if (titleElement) {
-      // click the job card
-      await titleElement.click();
-      await page.waitForNavigation();
+  while (more) {
+    // Get List
+    // const elements = await page.$$(".jobsearch-ResultsList li");
+    const elements = await page.$$(".jobsearch-ResultsList .job_seen_beacon")
+    // For each element
 
-      const job_title = titleElement
-        ? await titleElement.evaluate((e) => e.innerText)
-        : null;
+    for (const e of elements) {
+      const titleElement = await e.$(".jcs-JobTitle");
 
-      const companyNameElement = await e.$(".companyName");
-      const company_name = companyNameElement
-        ? await companyNameElement.evaluate((e) => e.innerText)
-        : null;
+      // not all elements are valid
+      if (titleElement) {
+        // click the job card
+        await titleElement.click();
+        await page.waitForNavigation({waitUntil: 'networkidle2'});
 
-      const companyLocationElement = await e.$(".companyLocation");
-      const company_location = companyLocationElement
-        ? await companyLocationElement.evaluate((e) => e.innerText)
-        : null;
+        const job_title = titleElement
+          ? await titleElement.evaluate((e) => e.innerText)
+          : null;
 
-      const salaryElement = await e.$(".salary-snippet-container");
-      const salary_range = salaryElement
-        ? await salaryElement.evaluate((e) => e.innerText)
-        : null;
+        const companyNameElement = await e.$(".companyName");
+        const company_name = companyNameElement
+          ? await companyNameElement.evaluate((e) => e.innerText)
+          : null;
 
-      const jobDElement = await page.$(".jobsearch-JobComponent-description");
-      const job_description = jobDElement
-        ? await jobDElement.evaluate((e) => e.innerText)
-        : null;
+        const companyLocationElement = await e.$(".companyLocation");
+        const company_location = companyLocationElement
+          ? await companyLocationElement.evaluate((e) => e.innerText)
+          : null;
 
-      results.push({
-        job_title,
-        company_name,
-        company_location,
-        salary_range,
-        job_description,
-      });
+        const salaryElement = await e.$(".salary-snippet-container");
+        const salary_range = salaryElement
+          ? await salaryElement.evaluate((e) => e.innerText)
+          : null;
+
+        const datePostedElement = await e.$(".date");
+        const days_ago_posted = datePostedElement
+          ? await datePostedElement.evaluate((e) => e.innerText)
+          : null;
+
+        const jobDElement = await page.$(".jobsearch-JobComponent-description");
+        const job_description = jobDElement
+          ? await jobDElement.evaluate((e) => e.innerText)
+          : null;
+
+        results.push({
+          job_title,
+          company_name,
+          company_location,
+          salary_range,
+          days_ago_posted,
+          job_description,
+        });
+
+        console.log(`${job_title} parsed`)
+      }
+      
+      await delay(500)
     }
+
+    console.log(`logged: ${results.length}`)
+    await delay(1000)
+    await more.click();
+    await page.waitForNavigation({waitUntil: 'networkidle2'});
+    more = await page.$('[aria-label="Next Page"]');
   }
+
   // 1. Click element
   // 2. Extract detail description
   // repeat.
@@ -83,6 +105,12 @@ const puppeteer = require("puppeteer");
   console.log(results);
   await browser.close();
 })();
+
+function delay(time) {
+  return new Promise(function(resolve) { 
+      setTimeout(resolve, time)
+  });
+}
 
 const clearText = async (selector, page) => {
   await page.focus(selector);
