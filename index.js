@@ -7,24 +7,71 @@ const puppeteer = require("puppeteer");
 
   const page = await browser.newPage();
   // await preparePageForTests(page);
-  await page.goto("https://www.indeed.com");
-  // job title
-  await page.type("#text-input-what", "Architect");
+  // await page.goto("https://www.indeed.com");
 
-  // location
-  await clearText("#text-input-where", page);
-  await page.type("#text-input-where", "San Francisco, CA");
+  // // Search Page
+  // // job title
+  // await page.type("#text-input-what", "Architect");
 
-  await page.keyboard.press("Enter");
-  await page.waitForNavigation();
+  // // location
+  // await clearText("#text-input-where", page);
+  // await page.type("#text-input-where", "San Francisco, CA");
+  // await page.keyboard.press("Enter");
+  // await page.waitForNavigation();
+  
+  await page.goto('https://www.indeed.com/jobs?q=Architect&l=San%20Francisco%2C%20CA&from=searchOnHP')
+  
+
   await page.waitForSelector('.jobsearch-ResultsList li');
 
-  const elements =await page.$$eval('.jobsearch-ResultsList li', options => {
-    return options.map(option => option.textContent);
-  });
+  const results = []
+  // Search Result Page
+  // Get List
+  const elements = await page.$$('.jobsearch-ResultsList li');
+  // For each element
+  for (e of elements) {
+
+    const titleElement = await e.$('.jcs-JobTitle')
+
+    // not all elements are valid
+    if (titleElement){
+      // click the job card
+      await titleElement.click()
+      await page.waitForNavigation();
+
+      const job_title = titleElement ? await titleElement.evaluate(e => e.innerText) : null
+
+      const companyNameElement = await e.$('.companyName')
+      const company_name = companyNameElement ? await companyNameElement.evaluate(e => e.innerText) : null
+  
+      const companyLocationElement = await e.$('.companyLocation')
+      const company_location = companyLocationElement ? await companyLocationElement.evaluate(e => e.innerText) : null
+      
+      const salaryElement = await e.$('.salary-snippet-container')
+      const salary_range = salaryElement ? await salaryElement.evaluate(e => e.innerText) : null
+
+      const jobDElement = await page.$('.jobsearch-JobComponent-description')
+      const job_description = jobDElement ? await jobDElement.evaluate(e => e.innerText) : null
+
+      results.push({
+        job_title,
+        company_name,
+        company_location,
+        salary_range,
+        job_description
+      })
+    }
+ 
+  }
+  // 1. Click element
+  // 2. Extract detail description
+  // repeat.
+
+  // paginate
+
   // const detail = await getJobDetails(page)
 
-  console.log(elements);
+  console.log(results);
   await browser.close();
 })();
 
