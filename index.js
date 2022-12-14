@@ -2,7 +2,7 @@ const puppeteer = require("puppeteer");
 const fs = require('fs');
 
 const JOB_TITLE = "Architect";
-const CITY = "Houston, TX";
+const CITY = "San Jose, CA";
 
 (async () => {
   // launch a browser
@@ -108,7 +108,7 @@ const CITY = "Houston, TX";
 
   console.log(`parsed ${results.length} jobs`);
   const print = JSON.stringify(results)
-  await fs.writeFile(`./data/20221212-${CITY}-${JOB_TITLE}.json`, print, (err) => {
+  await fs.writeFile(`./data/20221213-${CITY}-${JOB_TITLE}.json`, print, (err) => {
     if (err) {
       console.error(err);
       return;
