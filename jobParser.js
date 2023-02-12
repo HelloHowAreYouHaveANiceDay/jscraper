@@ -46,10 +46,17 @@ const hasVectorworks = (text) => {
     return text.job_description.toLowerCase().includes('vectorworks')
 }
 
+const hasMicrostation = (text) => {
+  text.job_description.toLowerCase().includes('microstation')
+}
+
 const hasAdobe = (text) => {
   return (
     text.job_description.toLowerCase().includes("adobe creative suite") |
-    text.job_description.toLowerCase().includes("adobe csuite")
+    text.job_description.toLowerCase().includes("adobe csuite") |
+    text.job_description.toLowerCase().includes("photoshop") |
+    text.job_description.toLowerCase().includes("illustrator") |
+    text.job_description.toLowerCase().includes("indesign")
   );
 };
 
@@ -72,7 +79,8 @@ const hasGsuite = (text) => {
 
 const hasOffice = (text) => {
     return text.job_description.toLowerCase().includes('ms office') |
-    text.job_description.toLowerCase().includes('microsoft office suite')
+    text.job_description.toLowerCase().includes('microsoft office suite') |
+    text.job_description.toLowerCase().includes('microsoft office')
 }
 
 const requiresLicense = (text) => {
@@ -96,6 +104,7 @@ const mapEntry = (job) => {
   o.hasNewforma = hasNewforma(o);
   o.hasVectorworks = hasVectorworks(o);
   o.hasGrasshopper = hasGrass(o)
+  o.hasMicrostation = hasMicrostation(o);
   return o;
 };
 
@@ -115,6 +124,8 @@ const percentOf = (list) => {
     pct3DMax: list.filter((l) => l.has3DMax).length/total,
     pctNewforma: list.filter((l) => l.hasNewforma).length/total,
     pctVectorworks: list.filter((l) => l.hasVectorworks).length/total,
-    pctGrasshopper: list.filter((l) => l.hasGrasshopper).length/total
+    pctGrasshopper: list.filter((l) => l.hasGrasshopper).length/total,
+    pctMicrostation: list.filter((l) => l.hasMicrostation).length/total
   };
 };
+

@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node index.js"
+    "scrape:indeed": "node index.js",
+    "scrape:archinect": "node archinect.js"
   },
   "author": "",
   "license": "ISC",
